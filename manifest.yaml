@@ -1,0 +1,38 @@
+version: 0.0.1
+type: plugin
+author: mozux
+name: dify_line_plugin
+label:
+  en_US: dify_line_plugin
+  ja_JP: dify_line_plugin
+  zh_Hans: dify_line_plugin
+  pt_BR: dify_line_plugin
+description:
+  en_US: Invoke Dify transparently from LINE Webhook
+  ja_JP: Invoke Dify transparently from LINE Webhook
+  zh_Hans: Invoke Dify transparently from LINE Webhook
+  pt_BR: Invoke Dify transparently from LINE Webhook
+icon: icon.svg
+resource:
+  memory: 268435456
+  permission:
+    endpoint:
+      enabled: true
+    storage:
+      enabled: true
+      size: 1048576
+plugins:
+  endpoints:
+    - group/dify_line_plugin.yaml
+meta:
+  version: 0.0.1
+  arch:
+    - amd64
+    - arm64
+  runner:
+    language: python
+    version: "3.12"
+    entrypoint: main
+created_at: 2025-03-04T20:43:46.49609+09:00
+privacy: PRIVACY.md
+verified: false
