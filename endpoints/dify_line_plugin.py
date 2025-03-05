@@ -51,6 +51,28 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
     def _process_text_message_event(
         self, event, channel_access_token: str, app_id: str
     ):
+        if self._should_respond(event):  # 返事をすべきテキストメッセージ
+            self._process_text_message_event_to_linebot(
+                event, channel_access_token, app_id
+            )
+
+    def _should_respond(self, event) -> bool:
+        if event["source"]["type"] == "user":  # 1対1トーク
+            return True
+
+        mention = event["message"].get("mention", None)
+        if mention is None:  # メンションがない
+            return False
+
+        for mentionees in mention["mentionees"]:
+            if mentionees.get("isSelf", None):  # 自分宛てのメンションがある
+                return True
+
+        return False  # メンションはあるが自分宛てではない
+
+    def _process_text_message_event_to_linebot(
+        self, event, channel_access_token: str, app_id: str
+    ):
         # Difyワークフローの呼び出し
         response = self.session.app.workflow.invoke(
             response_mode="blocking",
