@@ -5,6 +5,8 @@ import base64
 import hashlib
 import hmac
 from typing import Mapping
+
+import requests
 from werkzeug import Request, Response
 from dify_plugin import Endpoint  # type: ignore
 
@@ -24,7 +26,7 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         # 署名が検証できた場合だけLINE Webhookとして応答する
         if self._verify_signature(r, settings["line_channel_secret"]):
             body = r.get_json()
-            print("🍣", body)
+            # print("🍣", body)
 
             for event in body.get("events", []):
                 self._process_event(
@@ -43,17 +45,17 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         )
 
     def _process_event(self, event, channel_access_token: str):
-        print("🎂", event)
+        # print("🎂", event)
         if event["type"] == "message":
             self._process_message_event(event, channel_access_token)
 
     def _process_message_event(self, event, channel_access_token: str):
-        print("🍰", event["message"])
+        # print("🍰", event["message"])
         if event["message"]["type"] == "text":
             self._process_text_message_event(event, channel_access_token)
 
     def _process_text_message_event(self, event, channel_access_token: str):
-        print("🍓", event["message"])
+        # print("🍓", event["message"])
         # 返信メッセージの作成
         reply_message = {
             "replyToken": event["replyToken"],
@@ -66,13 +68,14 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         }
 
         # LINE Messaging APIに返信メッセージを送信
-        response = self.session.post(
+        response = requests.post(
             "https://api.line.me/v2/bot/message/reply",
             headers={
                 "Content-Type": "application/json",
                 "Authorization": f"Bearer {channel_access_token}",
             },
             data=json.dumps(reply_message),
+            timeout=10,
         )
 
         if response.status_code != 200:
