@@ -28,7 +28,6 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         # 署名が検証できた場合だけLINE Webhookとして応答する
         if self._verify_signature(r, settings["line_channel_secret"]):
             body = r.get_json()
-            # print("🍣", body)
 
             for event in body.get("events", []):
                 self._process_event(
@@ -38,14 +37,12 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         return Response("", status=200, content_type="application/json")
 
     def _process_event(self, event, channel_access_token: str, app_id: str):
-        # print("🎂", event)
         if event["type"] == "message":
             self._process_message_event(event, channel_access_token, app_id)
 
     def _process_message_event(
         self, event, channel_access_token: str, app_id: str
     ):
-        # print("🍰", event["message"])
         if event["message"]["type"] == "text":
             self._process_text_message_event(
                 event, channel_access_token, app_id
@@ -54,8 +51,6 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
     def _process_text_message_event(
         self, event, channel_access_token: str, app_id: str
     ):
-        # print("🍓", event["message"])
-
         # Difyワークフローの呼び出し
         response = self.session.app.workflow.invoke(
             response_mode="blocking",
