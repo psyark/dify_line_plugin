@@ -16,13 +16,13 @@ class DifyLinePluginEndpoint(Endpoint):
         Invokes the endpoint with the given request.
         """
         app_id = settings["app_to_invoke"]["app_id"]
-        
+
         def generator():
             response = self.session.app.workflow.invoke(
                 app_id=app_id, inputs={}, response_mode="blocking"
             )
             yield json.dumps(response)
-            
+
         return Response(
             generator(), status=200, content_type="application/json"
         )
