@@ -1,6 +1,6 @@
 """ このモジュールではLINE Webhookを受信するエンドポイントを定義します """
 
-import time
+import json
 from typing import Mapping
 from werkzeug import Request, Response
 from dify_plugin import Endpoint  # type: ignore
@@ -15,10 +15,14 @@ class DifyLinePluginEndpoint(Endpoint):
         """
         Invokes the endpoint with the given request.
         """
-
+        app_id = settings["app_to_invoke"]["app_id"]
+        
         def generator():
-            for i in range(10):
-                time.sleep(1)
-                yield f"{i} <br>"
-
-        return Response(generator(), status=200, content_type="text/html")
+            response = self.session.app.workflow.invoke(
+                app_id=app_id, inputs={}, response_mode="blocking"
+            )
+            yield json.dumps(response)
+            
+        return Response(
+            generator(), status=200, content_type="application/json"
+        )

@@ -1,4 +1,12 @@
 settings:
+  - name: app_to_invoke
+    type: app-selector
+    required: true
+    label:
+      en_US: App to invoke
+      ja_JP: App to invoke
+      zh_Hans: App to invoke
+      pt_BR: App to invoke
   - name: line_channel_access_token
     type: secret-input
     required: true
