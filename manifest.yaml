@@ -3,10 +3,10 @@ type: plugin
 author: mozux
 name: dify_line_plugin
 label:
-  en_US: dify_line_plugin
-  ja_JP: Dify LINE プラグイン
-  zh_Hans: dify_line_plugin
-  pt_BR: dify_line_plugin
+  en_US: LINE
+  ja_JP: LINE
+  zh_Hans: LINE
+  pt_BR: LINE
 description:
   en_US: Invoke Dify transparently from LINE Webhook
   ja_JP: LINE WebhookからDifyを透過的に呼び出す

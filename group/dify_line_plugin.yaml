@@ -1,14 +1,29 @@
 settings:
-  - name: api_key
+  - name: line_channel_access_token
     type: secret-input
     required: true
     label:
-      en_US: API key
-      zh_Hans: API key
-      pt_BR: API key
+      en_US: Channel Access Token
+      ja_JP: Channel Access Token
+      zh_Hans: Channel Access Token
+      pt_BR: Channel Access Token
     placeholder:
-      en_US: Please input your API key
-      zh_Hans: 请输入你的 API key
-      pt_BR: Please input your API key
+      en_US: Please input your Channel Access Token
+      ja_JP: Please input your Channel Access Token
+      zh_Hans: 请输入你的 Channel Access Token
+      pt_BR: Please input your Channel Access Token
+  - name: line_channel_secret
+    type: secret-input
+    required: true
+    label:
+      en_US: Channel Secret
+      ja_JP: Channel Secret
+      zh_Hans: Channel Secret
+      pt_BR: Channel Secret
+    placeholder:
+      en_US: Please input your Channel Secret
+      ja_JP: Please input your Channel Secret
+      zh_Hans: 请输入你的 Channel Secret
+      pt_BR: Please input your Channel Secret
 endpoints:
   - endpoints/dify_line_plugin.yaml
