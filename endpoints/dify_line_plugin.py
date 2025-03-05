@@ -1,14 +1,21 @@
+""" このモジュールではLINE Webhookを受信するエンドポイントを定義します """
+
 import time
 from typing import Mapping
 from werkzeug import Request, Response
-from dify_plugin import Endpoint
+from dify_plugin import Endpoint  # type: ignore
 
 
 class DifyLinePluginEndpoint(Endpoint):
-    def _invoke(self, r: Request, values: Mapping, settings: Mapping) -> Response:
+    """LINE Webhookを受信するエンドポイント"""
+
+    def _invoke(
+        self, r: Request, values: Mapping, settings: Mapping
+    ) -> Response:
         """
         Invokes the endpoint with the given request.
         """
+
         def generator():
             for i in range(10):
                 time.sleep(1)

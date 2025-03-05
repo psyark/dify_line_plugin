@@ -1,4 +1,5 @@
-from dify_plugin import Plugin, DifyPluginEnv
+""" このモジュールではプラグインを実行します """
+from dify_plugin import Plugin, DifyPluginEnv  # type: ignore
 
 plugin = Plugin(DifyPluginEnv(MAX_REQUEST_TIMEOUT=120))
 
