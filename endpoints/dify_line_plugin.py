@@ -23,6 +23,8 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
     ) -> Response:
         """Invokes the endpoint with the given request."""
 
+        app_id = settings["app_to_invoke"]["app_id"]
+
         # 署名が検証できた場合だけLINE Webhookとして応答する
         if self._verify_signature(r, settings["line_channel_secret"]):
             body = r.get_json()
@@ -30,41 +32,49 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
 
             for event in body.get("events", []):
                 self._process_event(
-                    event, settings["line_channel_access_token"]
+                    event, settings["line_channel_access_token"], app_id
                 )
 
-        def generator():
-            app_id = settings["app_to_invoke"]["app_id"]
-            response = self.session.app.workflow.invoke(
-                app_id=app_id, inputs={}, response_mode="blocking"
-            )
-            yield json.dumps(response)
+        return Response("", status=200, content_type="application/json")
 
-        return Response(
-            generator(), status=200, content_type="application/json"
-        )
-
-    def _process_event(self, event, channel_access_token: str):
+    def _process_event(self, event, channel_access_token: str, app_id: str):
         # print("🎂", event)
         if event["type"] == "message":
-            self._process_message_event(event, channel_access_token)
+            self._process_message_event(event, channel_access_token, app_id)
 
-    def _process_message_event(self, event, channel_access_token: str):
+    def _process_message_event(
+        self, event, channel_access_token: str, app_id: str
+    ):
         # print("🍰", event["message"])
         if event["message"]["type"] == "text":
-            self._process_text_message_event(event, channel_access_token)
+            self._process_text_message_event(
+                event, channel_access_token, app_id
+            )
 
-    def _process_text_message_event(self, event, channel_access_token: str):
+    def _process_text_message_event(
+        self, event, channel_access_token: str, app_id: str
+    ):
         # print("🍓", event["message"])
+
+        # Difyワークフローの呼び出し
+        response = self.session.app.workflow.invoke(
+            response_mode="blocking",
+            app_id=app_id,
+            inputs={"messageText": event["message"]["text"]},
+        )
+        data = response["data"]
+        if data["error"] is None:
+            pass
+        else:
+            pass
+
+        outputs = data["outputs"]
+        output = outputs.get("output", [])
+
         # 返信メッセージの作成
         reply_message = {
             "replyToken": event["replyToken"],
-            "messages": [
-                {
-                    "type": "text",
-                    "text": f"Received: {event["message"]["text"]}",
-                }
-            ],
+            "messages": [{"type": "text", "text": output}],
         }
 
         # LINE Messaging APIに返信メッセージを送信
