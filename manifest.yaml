@@ -4,12 +4,12 @@ author: mozux
 name: dify_line_plugin
 label:
   en_US: dify_line_plugin
-  ja_JP: dify_line_plugin
+  ja_JP: Dify LINE プラグイン
   zh_Hans: dify_line_plugin
   pt_BR: dify_line_plugin
 description:
   en_US: Invoke Dify transparently from LINE Webhook
-  ja_JP: Invoke Dify transparently from LINE Webhook
+  ja_JP: LINE WebhookからDifyを透過的に呼び出す
   zh_Hans: Invoke Dify transparently from LINE Webhook
   pt_BR: Invoke Dify transparently from LINE Webhook
 icon: icon.svg
