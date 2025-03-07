@@ -95,7 +95,7 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
                 try:
                     mapi = MessagingApi(api_client)
                     mapi.reply_message(req)
-                except Exception as e:
+                except Exception as e:  # pylint: disable=W0718
                     # Exception : module 'linebot.v3.webhooks.models' has no
                     # attribute 'ReplyMessageResponse'
                     print(f"Exception : {e}")
