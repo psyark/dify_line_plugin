@@ -1,20 +1,19 @@
 """このモジュールではLINE Webhookを受信するエンドポイントを定義します"""
 
-from typing import Mapping
+from typing import Mapping, cast
 from werkzeug import Request, Response
 from dify_plugin import Endpoint  # type: ignore
 from linebot.v3 import WebhookHandler  # type: ignore
 from linebot.v3.messaging import (  # type: ignore
+    ApiClient,
     MessagingApi,
     ReplyMessageRequest,
     TextMessage,
 )
 from linebot.v3.webhooks import (  # type: ignore
     Configuration,
-    Event,
     MessageEvent,
     TextMessageContent,
-    ApiClient,
 )
 from linebot.v3.exceptions import InvalidSignatureError  # type: ignore
 
@@ -37,11 +36,11 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         handler = WebhookHandler(settings["line_channel_secret"])
 
         @handler.add(MessageEvent, message=TextMessageContent)
-        def handle_text_event(text_event: Event):
+        def handle_text_event(text_event: MessageEvent):
             event_dict = text_event.to_dict()
             if self._should_respond(event_dict):
                 self._process_text_message_event_to_linebot(
-                    event_dict, configuration, app_id
+                    text_event, configuration, app_id
                 )
 
         signature = r.headers["X-Line-Signature"]
@@ -69,14 +68,16 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         return False  # メンションはあるが自分宛てではない
 
     def _process_text_message_event_to_linebot(
-        self, event, configuration: Configuration, app_id: str
+        self, event: MessageEvent, configuration: Configuration, app_id: str
     ):
         # Difyワークフローの呼び出し
+        text = cast(TextMessageContent, event.message).text
         response = self.session.app.workflow.invoke(
             app_id=app_id,
-            inputs={"messageText": event["message"]["text"]},
+            inputs={"messageText": text},
             response_mode="blocking",
         )
+
         data = response["data"]
         if data["error"] is None:
             pass
@@ -91,5 +92,10 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
                 messages=[TextMessage(text=output)],
             )
             with ApiClient(configuration) as api_client:
-                mapi = MessagingApi(api_client)
-                mapi.reply_message_with_http_info(req)
+                try:
+                    mapi = MessagingApi(api_client)
+                    mapi.reply_message(req)
+                except Exception as e:
+                    # Exception : module 'linebot.v3.webhooks.models' has no
+                    # attribute 'ReplyMessageResponse'
+                    print(f"Exception : {e}")
