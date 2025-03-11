@@ -14,6 +14,7 @@ from linebot.v3.webhooks import (  # type: ignore
     Configuration,
     MessageEvent,
     TextMessageContent,
+    UserMentionee,
 )
 from linebot.v3.exceptions import InvalidSignatureError  # type: ignore
 
@@ -36,12 +37,9 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         handler = WebhookHandler(settings["line_channel_secret"])
 
         @handler.add(MessageEvent, message=TextMessageContent)
-        def handle_text_event(text_event: MessageEvent):
-            event_dict = text_event.to_dict()
-            if self._should_respond(event_dict):
-                self._process_text_message_event_to_linebot(
-                    text_event, configuration, app_id
-                )
+        def handle_text_event(event: MessageEvent):
+            if self._should_respond(event):
+                self._respond(event, configuration, app_id)
 
         signature = r.headers["X-Line-Signature"]
         body = r.get_data(as_text=True)
@@ -53,21 +51,21 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
 
         return Response("", status=200, content_type="application/json")
 
-    def _should_respond(self, event) -> bool:
-        if event["source"]["type"] == "user":  # 1対1トーク
+    def _should_respond(self, event: MessageEvent) -> bool:
+        if event.source is not None:  # 1対1トークで話しかけられた
             return True
 
-        mention = event["message"].get("mention", None)
-        if mention is None:  # メンションがない
-            return False
+        message = cast(TextMessageContent, event.message)
+        if message.mention is not None:  # テキストにメンションが含まれる
+            for m in message.mention.mentionees:
+                if (
+                    isinstance(m, UserMentionee) and m.is_self
+                ):  # 自分宛てのメンションがある
+                    return True
 
-        for mentionees in mention["mentionees"]:
-            if mentionees.get("isSelf", None):  # 自分宛てのメンションがある
-                return True
+        return False  # 返事をすべきではない
 
-        return False  # メンションはあるが自分宛てではない
-
-    def _process_text_message_event_to_linebot(
+    def _respond(
         self, event: MessageEvent, configuration: Configuration, app_id: str
     ):
         # Difyワークフローの呼び出し
