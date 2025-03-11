@@ -33,5 +33,18 @@ settings:
       ja_JP: Please input your Channel Secret
       zh_Hans: 请输入你的 Channel Secret
       pt_BR: Please input your Channel Secret
+  - name: line_bot_user_id
+    type: text-input
+    required: true
+    label:
+      en_US: Bot User ID (because the difify_plugin package depends on an older library)
+      ja_JP: Bot User ID (because the difify_plugin package depends on an older library)
+      zh_Hans: Bot User ID (because the difify_plugin package depends on an older library)
+      pt_BR: Bot User ID (because the difify_plugin package depends on an older library)
+    placeholder:
+      en_US: Please input your Bot User ID
+      ja_JP: Please input your Bot User ID
+      zh_Hans: 请输入你的 Bot User ID
+      pt_BR: Please input your Bot User ID
 endpoints:
   - endpoints/dify_line_plugin.yaml

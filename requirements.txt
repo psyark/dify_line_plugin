@@ -1,2 +1,2 @@
-dify_plugin~=0.0.1b67
-line-bot-sdk
+dify_plugin~=0.0.1b72
+line-bot-sdk~=3.13

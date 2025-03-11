@@ -35,10 +35,11 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         access_token = settings["line_channel_access_token"]
         configuration = Configuration(access_token=access_token)
         handler = WebhookHandler(settings["line_channel_secret"])
+        bot_user_id = settings["line_bot_user_id"]
 
         @handler.add(MessageEvent, message=TextMessageContent)
         def handle_text_event(event: MessageEvent):
-            if self._should_respond(event):
+            if self._should_respond(event, bot_user_id):
                 self._respond(event, configuration, app_id)
 
         signature = r.headers["X-Line-Signature"]
@@ -51,7 +52,7 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
 
         return Response("", status=200, content_type="application/json")
 
-    def _should_respond(self, event: MessageEvent) -> bool:
+    def _should_respond(self, event: MessageEvent, bot_user_id: str) -> bool:
         if event.source is not None:
             if event.source.type == "user":  # 1対1トークで話しかけられた
                 return True
@@ -60,7 +61,9 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         if message.mention is not None:  # テキストにメンションが含まれる
             for m in message.mention.mentionees:
                 if isinstance(m, UserMentionee):
-                    if m.is_self:  # 自分宛てのメンションがある
+                    # dify_pluginと互換性のあるline-bot-sdkではis_selfが使えない！！！
+                    # if m.is_self:  # 自分宛てのメンションがある
+                    if m.user_id == bot_user_id:
                         return True
 
         return False  # 返事をすべきではない
