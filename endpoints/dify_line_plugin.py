@@ -52,16 +52,16 @@ class DifyLinePluginEndpoint(Endpoint):  # pylint: disable=R0903
         return Response("", status=200, content_type="application/json")
 
     def _should_respond(self, event: MessageEvent) -> bool:
-        if event.source is not None:  # 1対1トークで話しかけられた
-            return True
+        if event.source is not None:
+            if event.source.type == "user":  # 1対1トークで話しかけられた
+                return True
 
         message = cast(TextMessageContent, event.message)
         if message.mention is not None:  # テキストにメンションが含まれる
             for m in message.mention.mentionees:
-                if (
-                    isinstance(m, UserMentionee) and m.is_self
-                ):  # 自分宛てのメンションがある
-                    return True
+                if isinstance(m, UserMentionee):
+                    if m.is_self:  # 自分宛てのメンションがある
+                        return True
 
         return False  # 返事をすべきではない
 
